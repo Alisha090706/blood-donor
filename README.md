@@ -217,33 +217,17 @@ This computes the great-circle distance between two points on Earth. `6371` is E
 | Pregnancy/breastfeeding | Deferred until 6 months post-delivery |
 | Recent malaria/typhoid/dengue | 3-month deferral |
 
----
-
-## Deployment
-
-### Railway (recommended for free hosting)
-
-1. Push to GitHub
-2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-3. Add a MySQL plugin from the Railway dashboard
-4. Set environment variables: `SPRING_DATASOURCE_PASSWORD`, `APP_JWT_SECRET`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`
-5. Railway auto-builds and deploys — your app gets a public URL
-
-The frontend is served from Spring Boot's static folder, so only one deployment is needed.
 
 ---
+## Demo Video
 
-## What Could Be Added Next
+Project Walkthrough:
+[Watch on YouTube](https://youtu.be/Vw15tyrJbRw)
 
-- SMS notifications via Twilio (critical for users without reliable email access)
-- Admin dashboard for request moderation and donor verification
-- Real-time notifications via WebSocket
-- Integration with actual hospital blood bank inventory APIs
-- Mobile app (React Native or Flutter)
-- Road-distance-based search using Google Maps Distance Matrix API
+The demo showcases donor registration, eligibility verification, location-based donor matching, urgent request creation, and email notifications to nearby eligible donors.
+
 
 ---
-
 ## References
 
 - [WHO Blood Donor Selection Guidelines](https://www.who.int/publications/i/item/9789241548519)
