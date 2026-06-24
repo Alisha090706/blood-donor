@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DonorLink — Blood & Organ Donor Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0B1120; --navy-mid: #131d33; --navy-card: #1a2640; --navy-border: #253352;
+      --crimson: #C0392B; --crimson-dim: #9b2d22; --crimson-glow: rgba(192,57,43,0.15);
+      --off-white: #F0EDE8; --muted: #8a95a8; --success: #2ecc71; --warn: #e67e22;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--off-white); min-height: 100vh; overflow-x: hidden; }
+
+    .ticker-bar { background: var(--crimson); padding: 8px 0; overflow: hidden; }
+    .ticker-track { display: flex; gap: 60px; white-space: nowrap; animation: ticker 28s linear infinite; }
+    .ticker-bar:hover .ticker-track { animation-play-state: paused; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .ticker-item { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; opacity: 0.92; }
+    .ticker-dot { display: inline-block; width: 6px; height: 6px; background: rgba(255,255,255,0.5); border-radius: 50%; margin-right: 20px; vertical-align: middle; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--navy-border); position: sticky; top: 0; background: rgba(11,17,32,0.96); backdrop-filter: blur(12px); z-index: 100; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--off-white); letter-spacing: -0.02em; }
+    .nav-logo span { color: var(--crimson); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; letter-spacing: 0.02em; transition: color 0.2s; cursor: pointer; }
+    .nav-links a:hover, .nav-links a.active { color: var(--off-white); }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn-ghost { background: transparent; border: 1px solid var(--navy-border); color: var(--off-white); padding: 8px 20px; border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; font-weight: 500; cursor: pointer; transition: border-color 0.2s; }
+    .btn-ghost:hover { border-color: var(--muted); }
+    .btn-primary { background: var(--crimson); border: none; color: #fff; padding: 8px 20px; border-radius: 6px; font-size: 14px; font-family: 'Inter', sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .btn-primary:hover { background: var(--crimson-dim); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .user-badge { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+    .user-badge strong { color: var(--off-white); }
+    .btn-logout { background: transparent; border: 1px solid var(--navy-border); color: var(--muted); padding: 6px 14px; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .btn-logout:hover { border-color: var(--crimson); color: var(--crimson); }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .hero { padding: 100px 48px 80px; max-width: 760px; }
+    .hero-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--crimson); margin-bottom: 20px; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(42px, 6vw, 72px); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; color: var(--off-white); margin-bottom: 24px; }
+    .hero h1 em { font-style: italic; color: var(--crimson); }
+    .hero p { font-size: 17px; font-weight: 300; color: var(--muted); line-height: 1.7; max-width: 520px; margin-bottom: 40px; }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-large { padding: 14px 32px; font-size: 15px; border-radius: 8px; }
+
+    .stats-strip { display: flex; border-top: 1px solid var(--navy-border); border-bottom: 1px solid var(--navy-border); margin: 0 48px; }
+    .stat-item { flex: 1; padding: 32px 40px; border-right: 1px solid var(--navy-border); }
+    .stat-item:last-child { border-right: none; }
+    .stat-number { font-family: 'Playfair Display', serif; font-size: 42px; font-weight: 700; color: var(--off-white); line-height: 1; margin-bottom: 6px; }
+    .stat-label { font-size: 13px; color: var(--muted); }
+
+    .how-it-works { padding: 80px 48px; }
+    .section-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--crimson); margin-bottom: 14px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--off-white); margin-bottom: 48px; }
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; border: 1px solid var(--navy-border); border-radius: 12px; overflow: hidden; }
+    .step { padding: 32px; border-right: 1px solid var(--navy-border); }
+    .step:last-child { border-right: none; }
+    .step-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: var(--navy-border); line-height: 1; margin-bottom: 16px; }
+    .step-title { font-size: 15px; font-weight: 600; color: var(--off-white); margin-bottom: 8px; }
+    .step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .camps-section { padding: 80px 48px; background: var(--navy-mid); }
+    .camps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 32px; }
+    .camp-card { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 24px; transition: border-color 0.2s; }
+    .camp-card:hover { border-color: var(--crimson); }
+    .camp-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--crimson); margin-bottom: 12px; }
+    .camp-name { font-size: 16px; font-weight: 600; color: var(--off-white); margin-bottom: 6px; }
+    .camp-detail { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+    .camp-date { font-size: 12px; color: var(--warn); margin-top: 12px; font-weight: 500; }
+
+    .section { padding: 64px 48px; }
+    .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 32px; }
+    .section-title-sm { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--off-white); }
+    .section-meta { font-size: 13px; color: var(--muted); }
+    .requests-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .request-card { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 24px; transition: border-color 0.2s; }
+    .request-card:hover { border-color: var(--crimson); }
+    .request-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .request-type-tag { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; background: var(--crimson-glow); color: var(--crimson); border: 1px solid rgba(192,57,43,0.3); }
+    .request-type-tag.organ { background: rgba(230,126,34,0.12); color: var(--warn); border-color: rgba(230,126,34,0.3); }
+    .request-time { font-size: 12px; color: var(--muted); }
+    .request-blood-group { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--crimson); line-height: 1; margin-bottom: 6px; }
+    .request-patient { font-size: 15px; font-weight: 500; color: var(--off-white); margin-bottom: 4px; }
+    .request-hospital { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .request-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--navy-border); }
+    .request-city { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .request-contact { font-size: 13px; color: var(--off-white); font-weight: 500; }
+    .empty-state { text-align: center; padding: 80px 0; color: var(--muted); }
+    .empty-state p { font-size: 15px; margin-top: 8px; }
+
+    .auth-wrap { min-height: calc(100vh - 120px); display: flex; align-items: center; justify-content: center; padding: 48px; }
+    .auth-box { width: 100%; max-width: 460px; }
+    .auth-title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--off-white); margin-bottom: 6px; }
+    .auth-sub { font-size: 14px; color: var(--muted); margin-bottom: 36px; }
+    .auth-sub a { color: var(--off-white); cursor: pointer; text-decoration: underline; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.03em; text-transform: uppercase; }
+    .form-input, .form-select { width: 100%; background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 7px; color: var(--off-white); font-family: 'Inter', sans-serif; font-size: 15px; padding: 12px 16px; outline: none; transition: border-color 0.2s; appearance: none; }
+    .form-input::placeholder { color: #4a5568; }
+    .form-input:focus, .form-select:focus { border-color: var(--crimson); }
+    .form-select option { background: var(--navy-card); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .form-submit { width: 100%; padding: 14px; font-size: 15px; font-weight: 600; border-radius: 8px; margin-top: 8px; }
+    .role-tabs { display: flex; border: 1px solid var(--navy-border); border-radius: 7px; overflow: hidden; margin-bottom: 28px; }
+    .role-tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; background: transparent; border: none; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+    .role-tab.active { background: var(--navy-mid); color: var(--off-white); }
+
+    /* Eligibility questionnaire */
+    .eligibility-box { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 24px; margin-top: 24px; }
+    .eligibility-title { font-size: 15px; font-weight: 600; color: var(--off-white); margin-bottom: 6px; }
+    .eligibility-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--navy-border); }
+    .check-item:last-child { border-bottom: none; }
+    .check-item input[type="checkbox"] { margin-top: 3px; accent-color: var(--crimson); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+    .check-label { font-size: 14px; color: var(--off-white); line-height: 1.5; cursor: pointer; }
+    .check-label span { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; }
+    .eligibility-warning { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--crimson); margin-top: 16px; display: none; }
+    .eligibility-ok { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); border-radius: 8px; padding: 12px 16px; font-size: 13px; color: var(--success); margin-top: 16px; display: none; }
+
+    .dash-wrap { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 90px); }
+    .dash-sidebar { border-right: 1px solid var(--navy-border); padding: 32px 0; }
+    .sidebar-section { padding: 0 20px; margin-bottom: 8px; }
+    .sidebar-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0 12px; margin-bottom: 6px; }
+    .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 7px; font-size: 14px; color: var(--muted); cursor: pointer; transition: all 0.15s; border: none; background: transparent; width: 100%; font-family: 'Inter', sans-serif; text-align: left; }
+    .sidebar-item:hover { background: var(--navy-card); color: var(--off-white); }
+    .sidebar-item.active { background: var(--navy-card); color: var(--off-white); }
+    .dash-main { padding: 40px 48px; overflow-y: auto; }
+    .dash-greeting { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--off-white); margin-bottom: 6px; }
+    .dash-sub { font-size: 14px; color: var(--muted); margin-bottom: 40px; }
+    .dash-panel { display: none; }
+    .dash-panel.active { display: block; }
+
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .profile-card { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 24px; }
+    .profile-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .profile-card-value { font-size: 22px; font-weight: 500; color: var(--off-white); }
+    .eligibility-status { padding: 16px 20px; border-radius: 8px; margin-bottom: 24px; font-size: 14px; font-weight: 500; }
+    .eligibility-status.eligible { background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.3); color: var(--success); }
+    .eligibility-status.ineligible { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); color: var(--crimson); }
+    .availability-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid var(--navy-border); }
+    .availability-row:last-child { border-bottom: none; }
+    .avail-label { font-size: 14px; color: var(--off-white); font-weight: 500; }
+    .avail-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .toggle { position: relative; width: 44px; height: 24px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--navy-border); border-radius: 24px; transition: background 0.2s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: var(--muted); border-radius: 50%; transition: transform 0.2s, background 0.2s; }
+    .toggle input:checked + .toggle-slider { background: var(--crimson-glow); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--crimson); }
+
+    .search-form { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 28px; margin-bottom: 28px; }
+    .search-type-tabs { display: flex; gap: 12px; margin-bottom: 24px; }
+    .search-type-tab { padding: 8px 20px; border-radius: 6px; border: 1px solid var(--navy-border); background: transparent; color: var(--muted); font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .search-type-tab.active { background: var(--crimson); border-color: var(--crimson); color: #fff; }
+    .donor-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .donor-card { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 20px; }
+    .donor-blood { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; color: var(--crimson); line-height: 1; margin-bottom: 8px; }
+    .donor-name { font-size: 15px; font-weight: 500; color: var(--off-white); }
+    .donor-city { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .donor-distance { font-size: 12px; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--navy-border); }
+    .donor-distance strong { color: var(--off-white); }
+    .eligible-badge { font-size: 11px; color: var(--success); font-weight: 500; margin-top: 4px; }
+
+    .post-form { max-width: 600px; background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 32px; }
+    .post-form-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--off-white); margin-bottom: 6px; }
+    .post-form-sub { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+
+    .my-request-item { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 10px; padding: 20px 24px; margin-bottom: 12px; display: flex; align-items: center; gap: 20px; }
+    .my-request-blood { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--crimson); min-width: 60px; }
+    .my-request-info { flex: 1; }
+    .my-request-patient { font-size: 15px; font-weight: 500; color: var(--off-white); }
+    .my-request-meta { font-size: 13px; color: var(--muted); margin-top: 3px; }
+    .status-badge { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; }
+    .status-open { background: var(--crimson-glow); color: var(--crimson); }
+    .status-fulfilled { background: rgba(46,204,113,0.1); color: var(--success); }
+    .status-cancelled { background: rgba(138,149,168,0.1); color: var(--muted); }
+    .btn-fulfill { background: transparent; border: 1px solid var(--success); color: var(--success); padding: 6px 14px; border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .btn-fulfill:hover { background: rgba(46,204,113,0.1); }
+
+    .toast-container { position: fixed; bottom: 28px; right: 28px; z-index: 999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 8px; padding: 14px 20px; font-size: 14px; color: var(--off-white); min-width: 280px; border-left: 3px solid var(--crimson); animation: slideIn 0.25s ease; }
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--crimson); }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--navy-border); border-top-color: var(--crimson); border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .divider { height: 1px; background: var(--navy-border); margin: 32px 0; }
+    .text-crimson { color: var(--crimson); }
+    .text-muted { color: var(--muted); }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="ticker-bar" id="tickerBar">
+  <div class="ticker-track" id="tickerTrack">
+    <span class="ticker-item"><span class="ticker-dot"></span>Loading active requests...</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Loading active requests...</span>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">Donor<span>Link</span></div>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')" class="active" id="nav-home">Home</a></li>
+    <li><a onclick="showPage('requests')" id="nav-requests">Open Requests</a></li>
+    <li><a onclick="showPage('camps')" id="nav-camps">Donation Camps</a></li>
+    <li><a onclick="requireAuth('dashboard')" id="nav-dashboard">Dashboard</a></li>
+  </ul>
+  <div class="nav-actions" id="navActions">
+    <button class="btn-ghost" onclick="showPage('login')">Sign in</button>
+    <button class="btn-primary" onclick="showPage('register')">Register</button>
+  </div>
+</nav>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-eyebrow">Blood &amp; Organ Donor Network — India</div>
+    <h1>Every second counts.<br><em>Be the reason</em><br>someone lives.</h1>
+    <p>India faces a shortage of 41 lakh units of blood annually. DonorLink connects willing donors with patients in urgent need — in real time, near you.</p>
+    <div class="hero-actions">
+      <button class="btn-primary btn-large" onclick="requireAuth('dashboard')">Register as Donor</button>
+      <button class="btn-ghost btn-large" onclick="showPage('requests')">View Open Requests</button>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-number">41L</div>
+      <div class="stat-label">Units of blood needed annually in India</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="statRequests">—</div>
+      <div class="stat-label">Open requests right now</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">3 mo</div>
+      <div class="stat-label">Minimum gap between donations</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">50 km</div>
+      <div class="stat-label">Default donor search radius</div>
+    </div>
+  </div>
+
+  <div class="how-it-works">
+    <div class="section-eyebrow">How it works</div>
+    <div class="section-title">From registration to donation in minutes</div>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Register &amp; clear eligibility</div>
+        <div class="step-desc">Answer a short medical questionnaire based on WHO guidelines. Takes under 2 minutes.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Your location is saved</div>
+        <div class="step-desc">We record your coordinates so that when a request comes in nearby, you are found instantly.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Get notified instantly</div>
+        <div class="step-desc">When a matching request is posted near you, you receive an email alert with the patient's details and hospital contact.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Show up. Save a life.</div>
+        <div class="step-desc">Contact the hospital directly and confirm your donation. Mark the request fulfilled once done.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title-sm">Urgent Requests</div>
+      <div class="section-meta" id="homeReqMeta">Loading...</div>
+    </div>
+    <div class="requests-grid" id="homeRequestsGrid">
+      <div class="empty-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- OPEN REQUESTS -->
+<div class="page" id="page-requests">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title-sm">All Open Requests</div>
+      <button class="btn-primary" onclick="loadOpenRequests()">Refresh</button>
+    </div>
+    <div class="requests-grid" id="allRequestsGrid">
+      <div class="empty-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DONATION CAMPS -->
+<div class="page" id="page-camps">
+  <div class="camps-section" style="background:var(--navy); padding: 64px 48px;">
+    <div class="section-eyebrow">Upcoming Events</div>
+    <div class="section-title" style="margin-bottom:12px">Blood Donation Camps</div>
+    <p style="color:var(--muted); font-size:15px; max-width:560px; margin-bottom:40px; line-height:1.7;">These camps are organized by hospitals and NGOs across India. Walk in, donate, and save lives — no appointment needed at most camps.</p>
+    <div class="camps-grid" id="campsGrid"></div>
+    <div style="margin-top:48px; padding-top:32px; border-top:1px solid var(--navy-border);">
+      <div class="section-eyebrow">Partner Hospitals</div>
+      <div class="section-title" style="font-size:22px; margin-bottom:24px">Blood Banks &amp; Hospitals Connected to DonorLink</div>
+      <div class="camps-grid" id="hospitalsGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">No account? <a onclick="showPage('register')">Register here</a></div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary form-submit" onclick="doLogin()" id="loginBtn">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="page" id="page-register">
+  <div class="auth-wrap" style="align-items:flex-start; padding-top:60px;">
+    <div class="auth-box" style="max-width:520px;">
+      <div class="auth-title">Join DonorLink</div>
+      <div class="auth-sub">Already registered? <a onclick="showPage('login')">Sign in</a></div>
+      <div class="role-tabs">
+        <button class="role-tab active" onclick="setRole('DONOR', this)">I want to donate</button>
+        <button class="role-tab" onclick="setRole('HOSPITAL', this)">Hospital / Family</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="regName" placeholder="Your full name" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="you@email.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input class="form-input" type="tel" id="regPhone" placeholder="10-digit mobile number" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="regPassword" placeholder="Min 6 characters" />
+      </div>
+      <button class="btn-primary form-submit" onclick="doRegister()" id="registerBtn">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="dash-wrap">
+    <aside class="dash-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Overview</div>
+        <button class="sidebar-item active" onclick="showPanel('profile', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          My Profile
+        </button>
+        <button class="sidebar-item" onclick="showPanel('myRequests', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+          My Requests
+        </button>
+      </div>
+      <div class="sidebar-section" style="margin-top:12px">
+        <div class="sidebar-label">Actions</div>
+        <button class="sidebar-item" onclick="showPanel('postRequest', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Post Request
+        </button>
+        <button class="sidebar-item" onclick="showPanel('search', this)">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Find Donors
+        </button>
+      </div>
+    </aside>
+
+    <main class="dash-main">
+      <div class="dash-greeting" id="dashGreeting">Good day</div>
+      <div class="dash-sub" id="dashSub">Manage your profile and requests</div>
+
+      <!-- PROFILE PANEL -->
+      <div class="dash-panel active" id="panel-profile">
+        <div id="eligibilityStatusBanner"></div>
+
+        <div id="profileSetupForm">
+          <div class="post-form" style="max-width:100%;">
+            <div class="post-form-title">Complete Your Donor Profile</div>
+            <div class="post-form-sub">Fill in your details and answer the eligibility questions. This is a one-time setup.</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Blood Group</label>
+                <select class="form-select" id="profileBloodGroup">
+                  <option value="">Select</option>
+                  <option>A_POSITIVE</option><option>A_NEGATIVE</option>
+                  <option>B_POSITIVE</option><option>B_NEGATIVE</option>
+                  <option>O_POSITIVE</option><option>O_NEGATIVE</option>
+                  <option>AB_POSITIVE</option><option>AB_NEGATIVE</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Age</label>
+                <input class="form-input" type="number" id="profileAge" placeholder="22" min="18" max="65" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">City</label>
+                <input class="form-input" type="text" id="profileCity" placeholder="Delhi" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <input class="form-input" type="text" id="profileState" placeholder="Delhi" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date of last blood donation (leave blank if never donated)</label>
+              <input class="form-input" type="date" id="profileLastDonated" />
+              <div class="form-hint">If you donated within the last 3 months, you will not appear in searches until the cooldown ends.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Organs willing to donate (optional)</label>
+              <input class="form-input" type="text" id="profileOrgans" placeholder="KIDNEY,CORNEA,LIVER" />
+            </div>
+
+            <!-- ELIGIBILITY QUESTIONNAIRE -->
+            <div class="eligibility-box">
+              <div class="eligibility-title">Medical Eligibility Questionnaire</div>
+              <div class="eligibility-sub">Based on WHO and National Blood Transfusion Council guidelines. Answer honestly — this protects both you and the recipient.</div>
+
+              <div class="check-item">
+                <input type="checkbox" id="q1" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q1">I have not had any surgery, major dental work, or blood transfusion in the last 6 months.<span>Includes bypass surgery, organ transplant, or tooth extraction under general anesthesia.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q2" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q2">I have not had a tattoo, piercing, or acupuncture in the last 12 months.<span>These carry a risk of bloodborne infections.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q3" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q3">I do not have any chronic illness — such as HIV, Hepatitis B or C, diabetes requiring insulin, active cancer, or heart disease.<span>People with these conditions are permanently or temporarily deferred.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q4" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q4">I am not currently pregnant or breastfeeding.<span>Pregnancy and the 6 months post-delivery are deferral periods.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q5" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q5">I have not consumed alcohol in the last 24 hours.<span>Alcohol affects platelet function and hydration levels.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q6" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q6">I am not currently on antibiotics, blood thinners (warfarin, aspirin), or immunosuppressants.<span>Some medications make donated blood unsafe for recipients.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q7" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q7">My weight is 50 kg or above.<span>Minimum weight requirement per NBTC guidelines.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q8" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q8">I have not had malaria, typhoid, or dengue in the last 3 months.<span>These infections can be transmitted through blood.</span></label>
+              </div>
+              <div class="check-item">
+                <input type="checkbox" id="q9" onchange="checkAllAnswered()" />
+                <label class="check-label" for="q9">I have not had any adverse reaction to a previous blood donation.<span>Severe fainting, allergic reaction, or prolonged bleeding after a past donation.</span></label>
+              </div>
+
+              <div class="eligibility-warning" id="eligWarn">You must confirm all statements to be eligible to donate blood.</div>
+              <div class="eligibility-ok" id="eligOk">You are eligible to donate blood based on your answers.</div>
+            </div>
+
+            <button class="btn-primary form-submit" onclick="saveProfile()" id="saveProfileBtn" style="margin-top:24px;">Save Profile</button>
+          </div>
+        </div>
+
+        <div id="profileDisplay" class="hidden">
+          <div id="profileGrid" class="profile-grid"></div>
+          <div class="divider"></div>
+          <div style="font-family:'Playfair Display',serif; font-size:18px; font-weight:600; color:var(--off-white); margin-bottom:20px;">Availability</div>
+          <div class="post-form" style="max-width:500px; padding:20px 24px;">
+            <div class="availability-row">
+              <div>
+                <div class="avail-label">Blood Donation</div>
+                <div class="avail-desc">Appear in blood donor searches near you</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggleBlood" onchange="updateAvailability('blood', this.checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="availability-row">
+              <div>
+                <div class="avail-label">Organ Donation</div>
+                <div class="avail-desc">Appear in organ donor searches near you</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggleOrgan" onchange="updateAvailability('organ', this.checked)" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="mt-6">
+            <button class="btn-ghost" onclick="document.getElementById('profileSetupForm').classList.remove('hidden'); document.getElementById('profileDisplay').classList.add('hidden')">Edit Profile</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MY REQUESTS -->
+      <div class="dash-panel" id="panel-myRequests">
+        <div style="font-family:'Playfair Display',serif; font-size:22px; font-weight:600; color:var(--off-white); margin-bottom:24px;">My Requests</div>
+        <div id="myRequestsList"><div class="spinner"></div></div>
+      </div>
+
+      <!-- POST REQUEST -->
+      <div class="dash-panel" id="panel-postRequest">
+        <div class="post-form">
+          <div class="post-form-title">Post an Urgent Request</div>
+          <div class="post-form-sub">Nearby matching donors will be notified by email immediately after posting.</div>
+          <div class="form-group">
+            <label class="form-label">Request Type</label>
+            <div class="search-type-tabs">
+              <button class="search-type-tab active" onclick="setReqType('BLOOD', this)">Blood</button>
+              <button class="search-type-tab" onclick="setReqType('ORGAN', this)">Organ</button>
+            </div>
+          </div>
+          <div id="bloodGroupField" class="form-group">
+            <label class="form-label">Blood Group Needed</label>
+            <select class="form-select" id="reqBloodGroup">
+              <option value="">Select blood group</option>
+              <option>A_POSITIVE</option><option>A_NEGATIVE</option>
+              <option>B_POSITIVE</option><option>B_NEGATIVE</option>
+              <option>O_POSITIVE</option><option>O_NEGATIVE</option>
+              <option>AB_POSITIVE</option><option>AB_NEGATIVE</option>
+            </select>
+          </div>
+          <div id="organField" class="form-group hidden">
+            <label class="form-label">Organ Needed</label>
+            <select class="form-select" id="reqOrgan">
+              <option value="">Select organ</option>
+              <option value="KIDNEY">Kidney</option>
+              <option value="LIVER">Liver</option>
+              <option value="HEART">Heart</option>
+              <option value="CORNEA">Cornea</option>
+              <option value="LUNG">Lung</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Patient Name</label>
+              <input class="form-input" id="reqPatient" placeholder="Full name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Phone</label>
+              <input class="form-input" id="reqPhone" placeholder="9876543210" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hospital Name</label>
+            <input class="form-input" id="reqHospital" placeholder="AIIMS Delhi" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input class="form-input" id="reqCity" placeholder="Delhi" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Additional Details (optional)</label>
+            <input class="form-input" id="reqDesc" placeholder="Any additional information for the donor..." />
+          </div>
+          <button class="btn-primary form-submit" onclick="postRequest()" id="postReqBtn">Post Request — Notify Donors</button>
+          <div class="form-hint mt-4">Your current location will be used to find nearby donors.</div>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="dash-panel" id="panel-search">
+        <div class="search-form">
+          <div style="font-family:'Playfair Display',serif; font-size:20px; font-weight:600; color:var(--off-white); margin-bottom:20px;">Find Donors Near You</div>
+          <div class="search-type-tabs">
+            <button class="search-type-tab active" onclick="setSearchType('blood', this)">Blood Donors</button>
+            <button class="search-type-tab" onclick="setSearchType('organ', this)">Organ Donors</button>
+          </div>
+          <div id="searchBloodField" class="form-group">
+            <label class="form-label">Blood Group</label>
+            <select class="form-select" id="searchBloodGroup">
+              <option value="">Select blood group</option>
+              <option>A_POSITIVE</option><option>A_NEGATIVE</option>
+              <option>B_POSITIVE</option><option>B_NEGATIVE</option>
+              <option>O_POSITIVE</option><option>O_NEGATIVE</option>
+              <option>AB_POSITIVE</option><option>AB_NEGATIVE</option>
+            </select>
+          </div>
+          <div id="searchOrganField" class="form-group hidden">
+            <label class="form-label">Organ</label>
+            <select class="form-select" id="searchOrgan">
+              <option value="">Select organ</option>
+              <option value="KIDNEY">Kidney</option><option value="LIVER">Liver</option>
+              <option value="HEART">Heart</option><option value="CORNEA">Cornea</option>
+              <option value="LUNG">Lung</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Search Radius</label>
+            <select class="form-select" id="searchRadius">
+              <option value="25">25 km</option>
+              <option value="50" selected>50 km</option>
+              <option value="100">100 km</option>
+              <option value="200">200 km</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="searchDonors()" id="searchBtn">Search Nearby Donors</button>
+        </div>
+        <div id="searchResults"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const API = '/api';
+  let token = localStorage.getItem('df_token');
+  let user  = JSON.parse(localStorage.getItem('df_user') || 'null');
+  let currentReqType = 'BLOOD';
+  let currentSearchType = 'blood';
+  let currentRole = 'DONOR';
+  let userLocation = null;
+
+  const CAMPS = [
+    { name: "Rotary Blood Donation Camp", org: "Rotary Club of Delhi", date: "29 June 2026", time: "9:00 AM – 2:00 PM", venue: "Community Hall, Connaught Place, New Delhi", contact: "011-23456789" },
+    { name: "AIIMS Voluntary Blood Drive", org: "AIIMS New Delhi", date: "5 July 2026", time: "8:00 AM – 4:00 PM", venue: "AIIMS Campus, Ansari Nagar, New Delhi", contact: "011-26588500" },
+    { name: "Red Cross Blood Camp", org: "Indian Red Cross Society", date: "12 July 2026", time: "10:00 AM – 3:00 PM", venue: "Red Cross Bhavan, New Delhi", contact: "011-23711551" },
+    { name: "World Blood Donor Day Camp", org: "Apollo Hospitals", date: "14 July 2026", time: "9:00 AM – 5:00 PM", venue: "Apollo Hospital, Sarita Vihar, Delhi", contact: "1860-500-1066" },
+    { name: "NSS Blood Donation Drive", org: "Delhi University NSS", date: "20 July 2026", time: "9:00 AM – 1:00 PM", venue: "Delhi University North Campus", contact: "011-27667011" },
+    { name: "Fortis Community Blood Camp", org: "Fortis Healthcare", date: "26 July 2026", time: "8:00 AM – 2:00 PM", venue: "Fortis Hospital, Vasant Kunj, Delhi", contact: "1800-111-7102" },
+  ];
+
+  const HOSPITALS = [
+    { name: "AIIMS New Delhi Blood Bank", type: "Government Hospital", address: "Ansari Nagar, New Delhi – 110029", phone: "011-26588500", hours: "24 x 7" },
+    { name: "Safdarjung Hospital Blood Bank", type: "Government Hospital", address: "Ring Road, New Delhi – 110029", phone: "011-26707444", hours: "24 x 7" },
+    { name: "Apollo Hospital Blood Bank", type: "Private Hospital", address: "Sarita Vihar, New Delhi – 110076", phone: "1860-500-1066", hours: "8 AM – 8 PM" },
+    { name: "Fortis Hospital Blood Bank", type: "Private Hospital", address: "Vasant Kunj, New Delhi – 110070", phone: "1800-111-7102", hours: "8 AM – 6 PM" },
+    { name: "Indian Red Cross Blood Bank", type: "NGO", address: "Red Cross Bhavan, New Delhi – 110001", phone: "011-23711551", hours: "9 AM – 5 PM" },
+    { name: "Sir Ganga Ram Hospital", type: "Private Hospital", address: "Rajinder Nagar, New Delhi – 110060", phone: "011-25750000", hours: "24 x 7" },
+  ];
+
+  window.onload = () => {
+    updateNav();
+    loadOpenRequests();
+    renderCamps();
+    getLocation();
+  };
+
+  function getLocation() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLocation = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+    });
+  }
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    const navEl = document.getElementById('nav-' + name);
+    if (navEl) navEl.classList.add('active');
+    if (name === 'requests') loadOpenRequests();
+    if (name === 'dashboard') initDashboard();
+  }
+
+  function requireAuth(dest) {
+    if (!token) { showPage('login'); return; }
+    showPage(dest);
+    if (dest === 'dashboard') initDashboard();
+  }
+
+  function updateNav() {
+    const actions = document.getElementById('navActions');
+    if (token && user) {
+      actions.innerHTML = `<div class="user-badge"><strong>${user.name}</strong><span class="text-muted">${user.role}</span></div>
+        <button class="btn-logout" onclick="logout()">Sign out</button>`;
+    } else {
+      actions.innerHTML = `<button class="btn-ghost" onclick="showPage('login')">Sign in</button>
+        <button class="btn-primary" onclick="showPage('register')">Register</button>`;
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('df_token');
+    localStorage.removeItem('df_user');
+    token = null; user = null;
+    updateNav();
+    showPage('home');
+    toast('Signed out');
+  }
+
+  function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 4500);
+  }
+
+  async function api(method, path, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  function setRole(role, el) {
+    currentRole = role;
+    document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  async function doRegister() {
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true; btn.textContent = 'Creating account...';
+    try {
+      const data = await api('POST', '/auth/register', {
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        phone: document.getElementById('regPhone').value,
+        password: document.getElementById('regPassword').value,
+        role: currentRole
+      });
+      token = data.data.token;
+      user  = { name: data.data.name, email: data.data.email, role: data.data.role };
+      localStorage.setItem('df_token', token);
+      localStorage.setItem('df_user', JSON.stringify(user));
+      updateNav();
+      showPage('dashboard');
+      initDashboard();
+      toast('Welcome to DonorLink, ' + user.name);
+    } catch(e) { toast(e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Create Account'; }
+  }
+
+  async function doLogin() {
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    try {
+      const data = await api('POST', '/auth/login', {
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+      });
+      token = data.data.token;
+      user  = { name: data.data.name, email: data.data.email, role: data.data.role };
+      localStorage.setItem('df_token', token);
+      localStorage.setItem('df_user', JSON.stringify(user));
+      updateNav();
+      showPage('dashboard');
+      initDashboard();
+      toast('Welcome back, ' + user.name);
+    } catch(e) { toast(e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Sign in'; }
+  }
+
+  async function loadOpenRequests() {
+    try {
+      const data = await api('GET', '/requests/open');
+      const reqs = data.data || [];
+      renderRequests(reqs, 'homeRequestsGrid');
+      renderRequests(reqs, 'allRequestsGrid');
+      document.getElementById('homeReqMeta').textContent = reqs.length + ' active';
+      document.getElementById('statRequests').textContent = reqs.length;
+      updateTicker(reqs);
+    } catch(e) {
+      document.getElementById('homeRequestsGrid').innerHTML = '<div class="empty-state"><p>Could not load requests.</p></div>';
+    }
+  }
+
+  function renderRequests(reqs, containerId) {
+    const el = document.getElementById(containerId);
+    if (!reqs || !reqs.length) { el.innerHTML = '<div class="empty-state"><p>No open requests right now.</p></div>'; return; }
+    el.innerHTML = reqs.map(r => `
+      <div class="request-card">
+        <div class="request-card-top">
+          <span class="request-type-tag ${r.requestType === 'ORGAN' ? 'organ' : ''}">${r.requestType}</span>
+          <span class="request-time">${timeAgo(r.createdAt)}</span>
+        </div>
+        <div class="request-blood-group">${(r.bloodGroup || r.organNeeded || '—').replace('_POSITIVE','+').replace('_NEGATIVE','-')}</div>
+        <div class="request-patient">${r.patientName}</div>
+        <div class="request-hospital">${r.hospitalName}</div>
+        <div class="request-footer">
+          <span class="request-city">${r.city || ''}</span>
+          <span class="request-contact">${r.contactPhone}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  function updateTicker(reqs) {
+    const track = document.getElementById('tickerTrack');
+    if (!reqs.length) { track.innerHTML = '<span class="ticker-item"><span class="ticker-dot"></span>No open requests at this time</span>'.repeat(4); return; }
+    const items = reqs.map(r => `<span class="ticker-item"><span class="ticker-dot"></span>${r.requestType} — ${(r.bloodGroup || r.organNeeded || '').replace('_POSITIVE','+').replace('_NEGATIVE','-')} — ${r.hospitalName}, ${r.city || ''} — ${r.contactPhone}</span>`).join('');
+    track.innerHTML = items + items;
+  }
+
+  function renderCamps() {
+    document.getElementById('campsGrid').innerHTML = CAMPS.map(c => `
+      <div class="camp-card">
+        <div class="camp-tag">Blood Donation Camp</div>
+        <div class="camp-name">${c.name}</div>
+        <div class="camp-detail" style="color:var(--off-white); font-weight:500">${c.org}</div>
+        <div class="camp-detail">${c.venue}</div>
+        <div class="camp-detail">${c.time}</div>
+        <div class="camp-detail">Contact: ${c.contact}</div>
+        <div class="camp-date">${c.date}</div>
+      </div>`).join('');
+
+    document.getElementById('hospitalsGrid').innerHTML = HOSPITALS.map(h => `
+      <div class="camp-card">
+        <div class="camp-tag">${h.type}</div>
+        <div class="camp-name">${h.name}</div>
+        <div class="camp-detail">${h.address}</div>
+        <div class="camp-detail">Phone: ${h.phone}</div>
+        <div class="camp-detail" style="color:var(--success); margin-top:8px; font-weight:500">Hours: ${h.hours}</div>
+      </div>`).join('');
+  }
+
+  function initDashboard() {
+    if (!user) return;
+    const hour = new Date().getHours();
+    const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('dashGreeting').textContent = greet + ', ' + user.name;
+    document.getElementById('dashSub').textContent = user.role === 'DONOR'
+      ? 'Manage your donor profile and availability'
+      : 'Post and manage blood or organ requests';
+    if (user.role === 'DONOR') loadProfile();
+    loadMyRequests();
+  }
+
+  function showPanel(name, el) {
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    if (name === 'myRequests') loadMyRequests();
+  }
+
+  function checkAllAnswered() {
+    const all = ['q1','q2','q3','q4','q5','q6','q7','q8','q9'].every(id => document.getElementById(id).checked);
+    document.getElementById('eligWarn').style.display = all ? 'none' : 'none';
+    document.getElementById('eligOk').style.display = all ? 'block' : 'none';
+  }
+
+  async function loadProfile() {
+    try {
+      const data = await api('GET', '/donors/profile');
+      showProfileDisplay(data.data);
+      // Check eligibility status
+      const eli = await api('GET', '/donors/eligibility');
+      const banner = document.getElementById('eligibilityStatusBanner');
+      if (eli.data.eligible) {
+        banner.innerHTML = `<div class="eligibility-status eligible">You are currently eligible to donate blood.</div>`;
+      } else {
+        const next = eli.data.nextEligibleDate ? ` Next eligible date: ${eli.data.nextEligibleDate}.` : '';
+        banner.innerHTML = `<div class="eligibility-status ineligible">${eli.data.reason}${next}</div>`;
+      }
+    } catch(e) {
+      document.getElementById('profileSetupForm').classList.remove('hidden');
+      document.getElementById('profileDisplay').classList.add('hidden');
+    }
+  }
+
+  function showProfileDisplay(p) {
+    document.getElementById('profileSetupForm').classList.add('hidden');
+    document.getElementById('profileDisplay').classList.remove('hidden');
+    const bg = (p.bloodGroup || '').replace('_POSITIVE','+').replace('_NEGATIVE','-');
+    const lastDonated = p.lastDonatedBlood || 'Never donated';
+    const eligIcon = p.eligibleToDonatNow ? '<span style="color:var(--success)">Eligible to donate</span>' : '<span style="color:var(--crimson)">Not currently eligible</span>';
+    document.getElementById('profileGrid').innerHTML = `
+      <div class="profile-card">
+        <div class="profile-card-label">Blood Group</div>
+        <div class="profile-card-value text-crimson" style="font-family:'Playfair Display',serif;font-size:36px">${bg}</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-label">Location</div>
+        <div class="profile-card-value">${p.city || '—'}, ${p.state || ''}</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-label">Age</div>
+        <div class="profile-card-value">${p.age || '—'}</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-label">Last Donated</div>
+        <div class="profile-card-value" style="font-size:16px">${lastDonated}</div>
+      </div>
+      <div class="profile-card" style="grid-column:span 2">
+        <div class="profile-card-label">Donation Status</div>
+        <div class="profile-card-value" style="font-size:16px">${eligIcon}</div>
+      </div>`;
+    document.getElementById('toggleBlood').checked = p.availableForBlood;
+    document.getElementById('toggleOrgan').checked = p.availableForOrgan;
+  }
+
+  async function saveProfile() {
+    const allChecked = ['q1','q2','q3','q4','q5','q6','q7','q8','q9'].every(id => document.getElementById(id).checked);
+    if (!allChecked) {
+      document.getElementById('eligWarn').style.display = 'block';
+      document.getElementById('eligWarn').textContent = 'Please answer all eligibility questions before saving your profile.';
+      return;
+    }
+    const btn = document.getElementById('saveProfileBtn');
+    btn.disabled = true; btn.textContent = 'Detecting location...';
+    try {
+      const loc = await getLocationPromise();
+      btn.textContent = 'Saving...';
+      const lastDonatedVal = document.getElementById('profileLastDonated').value;
+      const data = await api('POST', '/donors/profile', {
+        bloodGroup: document.getElementById('profileBloodGroup').value,
+        age: parseInt(document.getElementById('profileAge').value),
+        city: document.getElementById('profileCity').value,
+        state: document.getElementById('profileState').value,
+        latitude: loc.lat,
+        longitude: loc.lon,
+        availableForBlood: true,
+        availableForOrgan: !!document.getElementById('profileOrgans').value,
+        organsWillingToDonate: document.getElementById('profileOrgans').value || null,
+        lastDonatedBlood: lastDonatedVal || null,
+        eligibilityAnswers: {
+          noRecentSurgery: document.getElementById('q1').checked,
+          noRecentTattoo: document.getElementById('q2').checked,
+          noChronicIllness: document.getElementById('q3').checked,
+          notPregnantOrNursing: document.getElementById('q4').checked,
+          noRecentAlcohol: document.getElementById('q5').checked,
+          noRecentMedication: document.getElementById('q6').checked,
+          weightAbove50kg: document.getElementById('q7').checked,
+          noRecentMalaria: document.getElementById('q8').checked,
+          noPreviousTransfusionIssues: document.getElementById('q9').checked
+        }
+      });
+      showProfileDisplay(data.data);
+      toast('Profile saved');
+      loadProfile();
+    } catch(e) { toast(e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Save Profile'; }
+  }
+
+  async function updateAvailability(type, val) {
+    try {
+      await api('PATCH', `/donors/availability/${type}?available=${val}`);
+      toast(`${type === 'blood' ? 'Blood' : 'Organ'} availability ${val ? 'enabled' : 'disabled'}`);
+    } catch(e) {
+      toast(e.message, 'error');
+      // Revert toggle
+      document.getElementById(type === 'blood' ? 'toggleBlood' : 'toggleOrgan').checked = !val;
+    }
+  }
+
+  function setReqType(type, el) {
+    currentReqType = type;
+    document.querySelectorAll('#panel-postRequest .search-type-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('bloodGroupField').classList.toggle('hidden', type !== 'BLOOD');
+    document.getElementById('organField').classList.toggle('hidden', type !== 'ORGAN');
+  }
+
+  async function postRequest() {
+    const btn = document.getElementById('postReqBtn');
+    btn.disabled = true; btn.textContent = 'Detecting location...';
+    try {
+      const loc = await getLocationPromise();
+      btn.textContent = 'Posting...';
+      const body = {
+        requestType: currentReqType,
+        patientName: document.getElementById('reqPatient').value,
+        hospitalName: document.getElementById('reqHospital').value,
+        city: document.getElementById('reqCity').value,
+        contactPhone: document.getElementById('reqPhone').value,
+        description: document.getElementById('reqDesc').value,
+        latitude: loc.lat, longitude: loc.lon
+      };
+      if (currentReqType === 'BLOOD') body.bloodGroup = document.getElementById('reqBloodGroup').value;
+      else body.organNeeded = document.getElementById('reqOrgan').value;
+      await api('POST', '/requests', body);
+      toast('Request posted. Nearby donors are being notified.');
+      showPanel('myRequests', document.querySelectorAll('.sidebar-item')[1]);
+      loadMyRequests(); loadOpenRequests();
+    } catch(e) { toast(e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Post Request — Notify Donors'; }
+  }
+
+  async function loadMyRequests() {
+    try {
+      const data = await api('GET', '/requests/mine');
+      const reqs = data.data || [];
+      const el = document.getElementById('myRequestsList');
+      if (!reqs.length) { el.innerHTML = '<div class="empty-state"><p>No requests posted yet.</p></div>'; return; }
+      el.innerHTML = reqs.map(r => `
+        <div class="my-request-item">
+          <div class="my-request-blood">${(r.bloodGroup || r.organNeeded || '—').replace('_POSITIVE','+').replace('_NEGATIVE','-')}</div>
+          <div class="my-request-info">
+            <div class="my-request-patient">${r.patientName}</div>
+            <div class="my-request-meta">${r.hospitalName} &middot; ${r.city || ''} &middot; ${timeAgo(r.createdAt)}</div>
+          </div>
+          <span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span>
+          ${r.status === 'OPEN' ? `<button class="btn-fulfill" onclick="fulfillRequest(${r.id})">Mark Fulfilled</button>` : ''}
+        </div>`).join('');
+    } catch(e) { document.getElementById('myRequestsList').innerHTML = '<div class="empty-state"><p>Could not load requests.</p></div>'; }
+  }
+
+  async function fulfillRequest(id) {
+    try {
+      await api('PATCH', `/requests/${id}/fulfill`);
+      toast('Request marked as fulfilled');
+      loadMyRequests(); loadOpenRequests();
+    } catch(e) { toast(e.message, 'error'); }
+  }
+
+  function setSearchType(type, el) {
+    currentSearchType = type;
+    document.querySelectorAll('#panel-search .search-type-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('searchBloodField').classList.toggle('hidden', type !== 'blood');
+    document.getElementById('searchOrganField').classList.toggle('hidden', type !== 'organ');
+  }
+
+  async function searchDonors() {
+    const btn = document.getElementById('searchBtn');
+    btn.disabled = true; btn.textContent = 'Detecting location...';
+    try {
+      const loc = await getLocationPromise();
+      btn.textContent = 'Searching...';
+      const body = { latitude: loc.lat, longitude: loc.lon, radiusKm: parseFloat(document.getElementById('searchRadius').value) };
+      let endpoint;
+      if (currentSearchType === 'blood') { body.bloodGroup = document.getElementById('searchBloodGroup').value; endpoint = '/donors/search/blood'; }
+      else { body.organNeeded = document.getElementById('searchOrgan').value; endpoint = '/donors/search/organ'; }
+      const data = await api('POST', endpoint, body);
+      const donors = data.data || [];
+      const el = document.getElementById('searchResults');
+      if (!donors.length) { el.innerHTML = '<div class="empty-state"><p>No donors found in this radius. Try increasing the search range.</p></div>'; return; }
+      el.innerHTML = `<div class="section-meta" style="margin-bottom:16px">${donors.length} donor(s) found</div>
+        <div class="donor-results-grid">${donors.map(d => `
+          <div class="donor-card">
+            <div class="donor-blood">${(d.bloodGroup||'').replace('_POSITIVE','+').replace('_NEGATIVE','-')}</div>
+            <div class="donor-name">${d.name}</div>
+            <div class="donor-city">${d.city || ''}, ${d.state || ''}</div>
+            ${d.eligibleToDonatNow ? '<div class="eligible-badge">Currently eligible to donate</div>' : ''}
+            <div class="donor-distance">Distance: <strong>${d.distanceKm} km</strong></div>
+          </div>`).join('')}
+        </div>`;
+    } catch(e) { toast(e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Search Nearby Donors'; }
+  }
+
+  function getLocationPromise() {
+    return new Promise((resolve) => {
+      if (userLocation) { resolve(userLocation); return; }
+      if (!navigator.geolocation) { resolve({ lat: 28.6139, lon: 77.2090 }); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos => { userLocation = { lat: pos.coords.latitude, lon: pos.coords.longitude }; resolve(userLocation); },
+        () => resolve({ lat: 28.6139, lon: 77.2090 })
+      );
+    });
+  }
+
+  function timeAgo(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+  }
+</script>
+</body>
+</html>
